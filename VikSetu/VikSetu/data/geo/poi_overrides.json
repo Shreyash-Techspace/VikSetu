@@ -1,0 +1,19 @@
+{
+  "schema": "viksetu_poi_overrides_v1",
+  "description": "Manual enrichments merged by build_poi_cards.py. Key = pin_id.",
+  "pins": {
+    "dev-ps-reported-road-works-taluka-0": {
+      "description": "Road works block reported in Palghar PS annual report FY 2024-25.",
+      "fy_history": [
+        {
+          "fy": "2024-25",
+          "status": "completed",
+          "spend_inr": 749986,
+          "notes": "Works sector actual spend line from PS consolidated table.",
+          "source_doc": "ps_palghar_annual_report_2024_25.pdf"
+        }
+      ],
+      "agent_summary": "PS road works (Palghar taluka), completed FY 2024-25, Rs 7,49,986 actual per PS report."
+    }
+  }
+}

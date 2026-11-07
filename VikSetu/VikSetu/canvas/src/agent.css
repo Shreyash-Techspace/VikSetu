@@ -1,0 +1,999 @@
+html,
+body,
+#root {
+  height: 100%;
+}
+
+.canvas-shell {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  background: hsl(240, 5%, 6.5%);
+  color: hsl(210, 17%, 98%);
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+.canvas-stage {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.embed-launch {
+  flex: none;
+}
+
+.embed-launch__icon {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.embed-drawer,
+.embed-ghost {
+  z-index: 10000;
+  pointer-events: auto;
+}
+
+.embed-ghost {
+  position: fixed;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  border: 2px dashed hsl(214, 84%, 56%);
+  background: hsl(222, 47%, 8%, 92%);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 12px 32px hsl(0, 0%, 0%, 45%);
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+.embed-ghost__inner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-end;
+  gap: 0.35rem;
+  padding: 0.45rem;
+  box-sizing: border-box;
+}
+
+.embed-ghost__inner svg {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+.embed-ghost__inner span {
+  font-size: 0.72rem;
+  font-weight: 650;
+  color: hsl(210, 17%, 94%);
+  text-align: center;
+}
+
+.embed-drawer button:hover {
+  border-color: hsl(214, 84%, 56%);
+}
+
+.embed-drawer {
+  position: fixed;
+  overflow: auto;
+  padding: 0.75rem;
+  border-radius: 14px;
+  background: hsl(235, 6.8%, 13.5%);
+  border: 1px solid hsl(240, 9%, 24%);
+  box-shadow: 0 16px 40px hsl(0, 0%, 0%, 40%);
+  animation: agent-in 0.2s ease;
+}
+
+.embed-drawer header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.45rem;
+}
+
+.embed-drawer h2 {
+  margin: 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.embed-drawer header button {
+  border: 0;
+  background: transparent;
+  color: hsl(204, 4%, 75%);
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.embed-drawer ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.embed-drawer li button {
+  width: 100%;
+  text-align: left;
+  border: 1px solid hsl(240, 9%, 24%);
+  background: hsl(240, 5%, 8%);
+  color: inherit;
+  border-radius: 10px;
+  padding: 0.45rem 0.55rem;
+  font: inherit;
+  cursor: grab;
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  gap: 0.55rem;
+  align-items: center;
+}
+
+.embed-card__thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.5rem;
+  height: 3rem;
+  border-radius: 8px;
+  background: hsl(222, 47%, 10%);
+  border: 1px solid hsl(214, 32%, 22%);
+}
+
+.embed-card__thumb svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.embed-card__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.embed-card__copy strong {
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+
+.embed-drawer li button span {
+  color: hsl(204, 4%, 75%);
+  font-size: 0.72rem;
+}
+
+.embed-drawer li button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.agent-panel {
+  position: relative;
+  width: 340px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: hsl(235, 6.8%, 13.5%);
+  border-left: 1px solid hsl(240, 9%, 22%);
+  box-shadow: -8px 0 24px hsl(0, 0%, 0%, 28%);
+  min-width: 0;
+  transition: width 0.18s ease, border-color 0.18s ease;
+}
+
+.agent-panel.is-hidden {
+  width: 0 !important;
+  border-left-color: transparent;
+  box-shadow: none;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.agent-panel__resize {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  cursor: ew-resize;
+  z-index: 2;
+}
+
+.agent-panel__resize:hover {
+  background: hsl(214, 84%, 56%, 18%);
+}
+
+.agent-open-tab {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 900;
+  border: 1px solid hsl(240, 9%, 24%);
+  border-right: 0;
+  border-radius: 10px 0 0 10px;
+  background: hsl(235, 6.8%, 13.5%);
+  color: hsl(210, 17%, 98%);
+  padding: 0.65rem 0.45rem;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 650;
+  writing-mode: vertical-rl;
+  cursor: pointer;
+  box-shadow: -8px 0 20px hsl(0, 0%, 0%, 35%);
+}
+
+.vik-upload-ring {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 120px;
+}
+
+.vik-upload-ring svg {
+  width: 88px;
+  height: 88px;
+  transform: rotate(-90deg);
+}
+
+.vik-upload-ring__track {
+  fill: none;
+  stroke: hsl(215, 18%, 28%);
+  stroke-width: 7;
+}
+
+.vik-upload-ring__bar {
+  fill: none;
+  stroke: hsl(214, 84%, 56%);
+  stroke-width: 7;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.15s ease;
+}
+
+.vik-upload-ring span {
+  font-size: 0.82rem;
+  font-weight: 650;
+  color: hsl(199, 89%, 70%);
+}
+
+.agent-head {
+  padding: 0.9rem 1rem 0.75rem;
+  border-bottom: 1px solid hsl(240, 9%, 22%);
+}
+
+.agent-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.agent-head h1 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+}
+
+.agent-head-actions {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.agent-head-actions button,
+.agent-chats button {
+  border: 1px solid hsl(240, 9%, 28%);
+  background: transparent;
+  color: inherit;
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  font: inherit;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+
+.agent-head-actions button[aria-pressed="true"] {
+  border-color: hsl(214, 84%, 56%);
+  color: hsl(199, 89%, 74%);
+}
+
+.agent-chats {
+  list-style: none;
+  margin: 0;
+  padding: 0.45rem 0.7rem 0.55rem;
+  border-bottom: 1px solid hsl(240, 9%, 22%);
+  max-height: 180px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.agent-chats li {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.agent-chats li button:first-child {
+  flex: 1;
+  text-align: left;
+  border-radius: 8px;
+}
+
+.agent-chats li.is-active button:first-child {
+  border-color: hsl(214, 84%, 56%);
+}
+
+.agent-head p {
+  margin: 0.35rem 0 0;
+  color: hsl(204, 4%, 75%);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.agent-log {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  user-select: text;
+}
+
+.agent-log * {
+  user-select: text;
+}
+
+.agent-msg {
+  margin: 0;
+  padding: 0.55rem 0.7rem;
+  border-radius: 10px;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  animation: agent-in 0.28s ease;
+}
+
+.agent-turn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.agent-turn:empty {
+  display: none;
+}
+
+.agent-turn > .agent-msg--user {
+  align-self: flex-end;
+}
+
+.agent-step {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-left: 0.55rem;
+  border-left: 2px solid hsl(240, 9%, 24%);
+}
+
+.agent-fold {
+  border: 1px solid hsl(240, 9%, 22%);
+  border-radius: 8px;
+  background: hsl(0, 0%, 100%, 3%);
+  font-size: 0.78rem;
+  animation: agent-in 0.28s ease;
+}
+
+.agent-fold--think {
+  border-color: hsl(262, 30%, 30%);
+}
+
+.agent-fold--act {
+  border-color: hsl(205, 40%, 28%);
+}
+
+.agent-fold summary {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.3rem 0.55rem;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.agent-fold summary::-webkit-details-marker {
+  display: none;
+}
+
+.agent-fold summary::before {
+  content: "▸";
+  font-size: 0.65rem;
+  color: hsl(204, 4%, 65%);
+  transition: transform 0.15s ease;
+}
+
+.agent-fold[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.agent-fold__tag {
+  font-weight: 650;
+}
+
+.agent-fold--think .agent-fold__tag {
+  color: hsl(262, 80%, 80%);
+}
+
+.agent-fold--act .agent-fold__tag {
+  color: hsl(199, 85%, 70%);
+}
+
+.agent-fold__meta {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: hsl(204, 4%, 65%);
+  font-size: 0.7rem;
+}
+
+.agent-fold pre {
+  margin: 0;
+  padding: 0.1rem 0.6rem 0.55rem;
+  max-height: 240px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: hsl(210, 17%, 88%);
+  font: inherit;
+  font-size: 0.74rem;
+  line-height: 1.45;
+}
+
+.agent-fold__item {
+  padding-top: 0.15rem;
+}
+
+.agent-fold__item strong {
+  display: block;
+  padding: 0 0.6rem;
+  font-size: 0.72rem;
+  color: hsl(210, 17%, 94%);
+}
+
+.agent-fold__note {
+  margin: 0;
+  padding: 0.05rem 0.6rem 0.3rem;
+  color: hsl(204, 4%, 75%);
+  font-size: 0.72rem;
+}
+
+.agent-fold__note--error {
+  color: hsl(0, 90%, 75%);
+}
+
+.agent-msg--user {
+  align-self: flex-end;
+  max-width: 92%;
+  background: hsl(214, 84%, 56%);
+  color: white;
+}
+
+.agent-msg--agent {
+  align-self: flex-start;
+  max-width: 96%;
+  background: hsl(0, 0%, 100%, 6%);
+  border: 1px solid hsl(240, 9%, 22%);
+}
+
+.agent-msg a,
+.agent-fold__note a {
+  color: hsl(199, 89%, 70%);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.agent-msg--pending {
+  color: hsl(204, 4%, 75%);
+}
+
+.vik-map-frame {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 12px;
+  background: hsl(222, 47%, 8%);
+  border: 1px solid hsl(214, 40%, 28%);
+  box-shadow: 0 16px 40px hsl(0, 0%, 0%, 35%);
+}
+
+.vik-map-bar {
+  height: 36px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0 0.55rem 0 0.75rem;
+  background: hsl(215, 32%, 14%);
+  color: hsl(210, 17%, 98%);
+  font-size: 0.78rem;
+  font-weight: 650;
+  pointer-events: auto;
+  cursor: grab;
+}
+
+.vik-map-hint {
+  color: hsl(204, 4%, 75%);
+  font-size: 0.68rem;
+  font-weight: 500;
+}
+
+.vik-title-input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 650;
+  padding: 0;
+  cursor: text;
+}
+
+.vik-title-input:focus {
+  outline: none;
+}
+
+.vik-edit-toggle {
+  border: 1px solid hsl(214, 32%, 36%);
+  background: transparent;
+  color: inherit;
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+  font: inherit;
+  font-size: 0.68rem;
+  cursor: pointer;
+}
+
+.vik-doc-edit {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  resize: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  padding: 0;
+}
+
+.vik-doc-edit:focus {
+  outline: none;
+}
+
+.vik-chart-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-height: 0;
+  overflow: auto;
+}
+
+.vik-chart-edit label {
+  display: grid;
+  grid-template-columns: 1fr 5.5rem;
+  gap: 0.35rem;
+}
+
+.vik-chart-edit input {
+  width: 100%;
+  border: 1px solid hsl(214, 24%, 28%);
+  background: hsl(222, 40%, 10%);
+  color: inherit;
+  border-radius: 6px;
+  padding: 0.28rem 0.4rem;
+  font: inherit;
+  font-size: 0.78rem;
+}
+
+.vik-chart-edit button {
+  align-self: flex-start;
+  border: 0;
+  background: transparent;
+  color: hsl(199, 89%, 70%);
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.layer-dock {
+  position: absolute;
+  z-index: 800;
+  width: 260px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.94);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  color: hsl(210, 17%, 98%);
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+.layer-dock.is-dragging {
+  border-color: rgba(56, 189, 248, 0.5);
+}
+
+.layer-dock-head {
+  display: flex;
+  align-items: stretch;
+  background: rgba(30, 41, 59, 0.95);
+  border-radius: 12px 12px 0 0;
+}
+
+.layer-dock.is-collapsed .layer-dock-head {
+  border-radius: 12px;
+}
+
+.layer-dock-handle {
+  width: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  color: #94a3b8;
+  user-select: none;
+}
+
+.layer-dock-head button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 650;
+  padding: 0.55rem 0.7rem 0.55rem 0;
+  cursor: pointer;
+}
+
+.layer-dock ul {
+  list-style: none;
+  margin: 0;
+  padding: 0.35rem 0.55rem 0.6rem;
+}
+
+.layer-dock label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.22rem 0;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.layer-dock i {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  flex: none;
+}
+
+.vik-map-stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.vik-map-stage iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  pointer-events: auto;
+  background: hsl(222, 47%, 8%);
+}
+
+.vik-map-frame.is-selecting .vik-map-stage,
+.vik-map-frame.is-selecting .vik-map-stage iframe,
+.vik-embed-frame.is-selecting .vik-embed-body,
+.vik-embed-frame.is-selecting .vik-embed-body * {
+  pointer-events: none;
+}
+
+.vik-embed-frame {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 12px;
+  background: hsl(222, 47%, 8%);
+  border: 1px solid hsl(214, 40%, 28%);
+  color: hsl(210, 17%, 98%);
+}
+
+.vik-custom-frame .vik-embed-body {
+  padding: 0;
+  overflow: hidden;
+}
+
+.vik-custom-frame__view {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #0f172a;
+}
+
+.vik-code-edit {
+  padding: 0.65rem 0.75rem;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 0.76rem;
+  white-space: pre;
+}
+
+.tl-container .vik-embed-body,
+.tl-container .vik-embed-body * {
+  user-select: text;
+}
+
+.vik-embed-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 0.65rem 0.75rem 0.8rem;
+  pointer-events: auto;
+}
+
+.vik-empty,
+.vik-file-path {
+  margin: 0;
+  color: hsl(204, 4%, 75%);
+  font-size: 0.78rem;
+}
+
+.vik-doc-body h3,
+.vik-doc-body h4,
+.vik-doc-body p,
+.vik-doc-body li {
+  margin: 0 0 0.35rem;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.vik-doc-body h3 {
+  font-size: 1rem;
+}
+
+.vik-embed-body:has(.vik-chart-svg) {
+  display: flex;
+  padding-bottom: 0.35rem;
+}
+
+.vik-chart-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+.vik-chart-axis {
+  stroke: hsl(210, 18%, 78%);
+  stroke-width: 1.75;
+}
+
+.vik-chart-grid {
+  stroke: hsl(215, 18%, 28%);
+  stroke-width: 1;
+}
+
+.vik-chart-tick,
+.vik-chart-label {
+  fill: hsl(204, 12%, 78%);
+  font-size: 12px;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+.vik-pie-row {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  height: 100%;
+}
+
+.vik-pie {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.vik-pie-row ul {
+  margin: 0;
+  padding-left: 1rem;
+  font-size: 0.75rem;
+}
+
+.vik-sheet-wrap {
+  overflow: auto;
+  height: 100%;
+}
+
+.vik-sheet {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.75rem;
+}
+
+.vik-sheet th,
+.vik-sheet td {
+  border: 1px solid hsl(214, 32%, 24%);
+  padding: 0;
+}
+
+.vik-sheet input {
+  width: 100%;
+  min-width: 72px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  padding: 0.28rem 0.4rem;
+}
+
+.vik-sheet th input {
+  font-weight: 650;
+}
+
+.vik-file-preview {
+  margin: 0;
+  padding: 0.35rem 0.45rem;
+  max-height: 8rem;
+  overflow: auto;
+  font-size: 0.72rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: hsl(215, 12%, 72%);
+}
+
+.vik-file-thumb {
+  display: block;
+  max-width: 100%;
+  max-height: calc(100% - 2rem);
+  object-fit: contain;
+  border-radius: 6px;
+  margin-top: 0.25rem;
+}
+
+.agent-form {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.75rem;
+  border-top: 1px solid hsl(240, 9%, 22%);
+}
+
+.agent-form input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid hsl(240, 9%, 22%);
+  background: hsl(240, 5%, 6.5%);
+  color: hsl(210, 17%, 98%);
+  border-radius: 8px;
+  padding: 0.55rem 0.65rem;
+  font: inherit;
+  font-size: 0.86rem;
+}
+
+.agent-form input:focus {
+  outline: none;
+  border-color: hsl(214, 84%, 56%);
+  box-shadow: 0 0 0 3px hsl(214, 84%, 56%, 25%);
+}
+
+.agent-form button {
+  border: none;
+  border-radius: 8px;
+  padding: 0 0.8rem;
+  background: hsl(214, 84%, 56%);
+  color: white;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.agent-form button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.agent-stop-btn,
+.agent-head-actions .agent-stop-btn {
+  background: hsl(0, 72%, 46%) !important;
+  border: 1px solid hsl(0, 72%, 38%);
+}
+
+.agent-stop-btn:hover:not(:disabled) {
+  background: hsl(0, 72%, 40%) !important;
+}
+
+.canvas-fatal {
+  box-sizing: border-box;
+  min-height: 100%;
+  padding: 2rem;
+  background: hsl(240, 5%, 6.5%);
+  color: hsl(210, 17%, 98%);
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+.canvas-fatal h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+}
+
+.canvas-fatal pre {
+  white-space: pre-wrap;
+  background: hsl(240, 6%, 12%);
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+
+.canvas-fatal button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  background: hsl(214, 84%, 56%);
+  color: white;
+  font: inherit;
+  cursor: pointer;
+}
+
+@keyframes agent-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 800px) {
+  .canvas-shell {
+    flex-direction: column;
+  }
+  .canvas-stage {
+    min-height: 55vh;
+  }
+  .agent-panel {
+    width: 100%;
+    height: 45vh;
+    border-left: none;
+    border-top: 1px solid hsl(240, 9%, 22%);
+  }
+}

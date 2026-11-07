@@ -1,0 +1,47 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Palghar district bounding box",
+        "region_type": "bbox",
+        "source": "openstreetmap_relation_9531818",
+        "bbox": [
+          72.6526112,
+          19.286998,
+          73.5045111,
+          20.2279324
+        ],
+        "note": "Axis-aligned minimum rectangle enclosing OSM district boundary R9531818"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              72.6526112,
+              19.286998
+            ],
+            [
+              73.5045111,
+              19.286998
+            ],
+            [
+              73.5045111,
+              20.2279324
+            ],
+            [
+              72.6526112,
+              20.2279324
+            ],
+            [
+              72.6526112,
+              19.286998
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

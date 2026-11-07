@@ -1,4 +1,5 @@
 import type { CanvasAction } from "./canvasAgent";
+import { apiUrl } from "./api";
 
 const MAP_AGENT_OPS = new Set(["map-layer", "map-focus", "map-pin"]);
 
@@ -95,7 +96,7 @@ export async function applyMapActions(actions: CanvasAction[]): Promise<{ notes:
         continue;
       }
       try {
-        const response = await fetch(`/api/poi/card/${encodeURIComponent(pinId)}`, {
+        const response = await fetch(apiUrl(`/api/poi/card/${encodeURIComponent(pinId)}`), {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(patch),

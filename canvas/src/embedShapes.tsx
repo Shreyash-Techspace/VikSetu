@@ -16,6 +16,7 @@ import {
   type TLShapeId,
   type TLShapePartial,
 } from "tldraw";
+import { apiUrl } from "./api";
 
 export const CHART_TYPE = "viksetu-chart";
 export const DOC_TYPE = "viksetu-doc";
@@ -622,7 +623,7 @@ export function uploadFileWithProgress(
             reject(new Error("Upload returned invalid JSON."));
           }
         };
-        xhr.open("POST", "/api/canvas/files");
+        xhr.open("POST", apiUrl("/api/canvas/files"));
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.send(body);
       } catch (error) {

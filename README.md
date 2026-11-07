@@ -90,6 +90,12 @@ Open **http://127.0.0.1:5175** — `/api` proxies to **8002**.
 
 After changing `backend/main.py`, restart the **8002** process (canvas API does not use `--reload` above).
 
+## Render public read-only demo
+
+The root `render.yaml` Blueprint defines the API and both static frontends. In Render, create a new Blueprint from this repository and deploy all three services. The public demo intentionally disables chat, file uploads, Python execution, and pin edits; the map and canvas remain browsable. The API also enforces read-only mode, so these operations remain blocked if called directly.
+
+The free API service has an ephemeral filesystem and may sleep when idle. This is suitable for a demo, not durable user uploads or production use. To re-enable agent features, add authentication and appropriate resource limits before changing `VIKSETU_READ_ONLY`.
+
 ## Geo and POI data
 
 One-time or when refreshing OSM data:

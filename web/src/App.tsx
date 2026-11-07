@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import maplibregl, { Map } from "maplibre-gl";
+import { Map } from "maplibre-gl";
 import {
   fetchDistrict,
   fetchLayer,
@@ -27,6 +27,7 @@ const LAYER_IDS = [
 type LayerId = (typeof LAYER_IDS)[number];
 
 const EMBED = new URLSearchParams(window.location.search).get("embed") === "1";
+const READ_ONLY = import.meta.env.VITE_READ_ONLY === "true";
 const LAYER_KEY = "viksetu-map-layers";
 const VIEW_KEY = "viksetu-map-view";
 
@@ -313,7 +314,7 @@ export default function App() {
       setSpend(spendData.rows.filter((r) => r.sector_en !== "Total"));
       if (!mapContainer.current) return;
 
-      map = new maplibregl.Map({
+      map = new Map({
         container: mapContainer.current,
         style: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
         center: reg.district.center,
@@ -578,27 +579,34 @@ export default function App() {
               ))}
             </ul>
           </section>
-          <section className="chat panel-block panel-block--fade">
-            <h2>Assistant</h2>
-            <div className="chat-log">
-              {messages.map((m, i) => (
-                <p key={i} className={m.role}>
-                  {m.text}
-                </p>
-              ))}
-            </div>
-            <div className="chat-input">
-              <input
-                value={chat}
-                onChange={(e) => setChat(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && sendChat()}
-                placeholder="Show schools / focus Jawhar / spend…"
-              />
-              <button type="button" className="btn-send" onClick={sendChat}>
-                Send
-              </button>
-            </div>
-          </section>
+          {READ_ONLY ? (
+            <section className="panel-block panel-block--fade">
+              <h2>Read-only demo</h2>
+              <p>Map browsing is enabled. Chat and data editing are disabled.</p>
+            </section>
+          ) : (
+            <section className="chat panel-block panel-block--fade">
+              <h2>Assistant</h2>
+              <div className="chat-log">
+                {messages.map((m, i) => (
+                  <p key={i} className={m.role}>
+                    {m.text}
+                  </p>
+                ))}
+              </div>
+              <div className="chat-input">
+                <input
+                  value={chat}
+                  onChange={(e) => setChat(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && sendChat()}
+                  placeholder="Show schools / focus Jawhar / spend…"
+                />
+                <button type="button" className="btn-send" onClick={sendChat}>
+                  Send
+                </button>
+              </div>
+            </section>
+          )}
         </aside>
       </div>
     </div>

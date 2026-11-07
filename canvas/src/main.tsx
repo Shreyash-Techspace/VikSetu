@@ -17,6 +17,7 @@ import { MAP_TYPE, MapShapeUtil } from "./MapShape";
 import "./agent.css";
 
 export const PERSISTENCE_KEY = "viksetu-canvas-v2";
+const READ_ONLY = import.meta.env.VITE_READ_ONLY === "true";
 
 function App() {
   const [editor, setEditor] = useState<Editor | null>(null);
@@ -83,10 +84,12 @@ function App() {
             if (fresh) instance.zoomToFit({ animation: { duration: 280 } });
             const container = instance.getContainer();
             const allowDrop = (event: DragEvent) => {
+              if (READ_ONLY) return;
               const types = event.dataTransfer?.types;
               if (types?.includes("Files") || types?.includes("text/plain")) event.preventDefault();
             };
             const onDrop = (event: DragEvent) => {
+              if (READ_ONLY) return;
               const embed = event.dataTransfer?.getData("text/plain") ?? "";
               if (embed.startsWith("viksetu-embed:")) {
                 event.preventDefault();
@@ -109,7 +112,7 @@ function App() {
         />
         <LayerDock editor={editor} stage={stageRef} />
       </div>
-      <AgentPanel editor={editor} />
+      {READ_ONLY ? <div className="readonly-notice">Read-only demo: file uploads and the AI agent are disabled.</div> : <AgentPanel editor={editor} />}
     </div>
   );
 }

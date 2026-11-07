@@ -16,6 +16,7 @@ import { getChangeLog } from "./changeLog";
 import { getCursorPoint } from "./cursor";
 import { getMapContext } from "./mapContext";
 import { applyMapActions, replayMapLayerState, splitMapActions } from "./mapBridge";
+import { apiUrl } from "./api";
 
 const CHAT_KEY = "viksetu-canvas-chat";
 const STORE_KEY = "viksetu-canvas-chats";
@@ -164,7 +165,7 @@ async function streamTurn(
   onRaw: (raw: string) => void,
   signal?: AbortSignal
 ): Promise<AgentTurn | null> {
-  const response = await fetch("/api/canvas/chat/stream", {
+  const response = await fetch(apiUrl("/api/canvas/chat/stream"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -528,7 +529,7 @@ export function AgentPanel({ editor }: Props) {
             break;
           }
           if (!parsed) {
-            const response = await fetch("/api/canvas/chat", {
+            const response = await fetch(apiUrl("/api/canvas/chat"), {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(body),

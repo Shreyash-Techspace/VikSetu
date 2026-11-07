@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: viksetu-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: VIKSETU_READ_ONLY
+        value: "true"
+      - key: LLM_PROVIDER
+        value: gemini
+
+  - type: web
+    name: viksetu-map
+    runtime: static
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    rootDir: web
+    envVars:
+      - key: VITE_API_URL
+        value: https://viksetu-api.onrender.com
+      - key: VITE_READ_ONLY
+        value: "true"
+
+  - type: web
+    name: viksetu-canvas
+    runtime: static
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    rootDir: canvas
+    envVars:
+      - key: VITE_API_URL
+        value: https://viksetu-api.onrender.com
+      - key: VITE_MAP_URL
+        value: https://viksetu-map.onrender.com/?embed=1
+      - key: VITE_READ_ONLY
+        value: "true"

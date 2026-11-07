@@ -50,6 +50,7 @@ from geo_utils import (  # noqa: E402
 )
 
 app = FastAPI(title="VikSetu API", version="0.1.0")
+READ_ONLY = os.environ.get("VIKSETU_READ_ONLY", "").strip().lower() in {"1", "true", "yes", "on"}
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -57,6 +58,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+def require_interactive_features() -> None:
+    if READ_ONLY:
+        raise HTTPException(403, "Interactive features are disabled in this read-only deployment.")
 
 
 def load_json(path: Path) -> dict:
@@ -230,6 +236,7 @@ class PinPatch(BaseModel):
 
 @app.patch("/api/poi/card/{pin_id}")
 def patch_poi_card(pin_id: str, body: PinPatch):
+    require_interactive_features()
     pins = _load_poi_cards_index()
     if pin_id not in pins:
         raise HTTPException(404, f"Unknown pin_id: {pin_id}")
@@ -270,6 +277,7 @@ class UIPatch(BaseModel):
 @app.post("/api/chat")
 def chat(req: ChatRequest):
     """Simple rule + optional Gemini; returns answer and ui_patch for dashboard."""
+    require_interactive_features()
     msg = req.message.lower()
     patch = UIPatch()
     answer = ""
@@ -973,6 +981,7 @@ def _split_agent_tools(actions: list, req: CanvasChatRequest | None = None) -> t
 
 @app.post("/api/canvas/files")
 def upload_canvas_file(req: FileUpload):
+    require_interactive_features()
     try:
         raw = base64.b64decode(req.data_b64, validate=True)
     except Exception as exc:
@@ -1002,6 +1011,7 @@ def canvas_file_raw(file_id: str):
 @app.post("/api/canvas/python")
 def canvas_python(req: PythonRequest):
     """Run a script inside agent_workspace (read/write anywhere under that folder)."""
+    require_interactive_features()
     return _run_python(req.code)
 
 
@@ -1491,6 +1501,7 @@ def _error_turn(exc: Exception) -> dict:
 @app.post("/api/canvas/chat")
 def canvas_chat(req: CanvasChatRequest):
     """LLM turn with shapes, sizes, live pins, files, and an optional workspace Python step."""
+    require_interactive_features()
     try:
         from llm import chat
 
@@ -1503,6 +1514,7 @@ def canvas_chat(req: CanvasChatRequest):
 @app.post("/api/canvas/chat/stream")
 def canvas_chat_stream(req: CanvasChatRequest, request: Request):
     """Same turn as /api/canvas/chat, sent as lines of JSON: delta chunks while the model writes, then one final."""
+    require_interactive_features()
 
     def events():
         try:

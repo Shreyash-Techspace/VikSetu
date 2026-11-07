@@ -3,7 +3,7 @@ import { keepInteractive, startShapeDrag, useAccelHeld } from "./embedShapes";
 import { replayMapLayerState } from "./mapBridge";
 
 export const MAP_TYPE = "viksetu-map";
-export const MAP_URL = "http://127.0.0.1:5173/?embed=1";
+export const MAP_URL = import.meta.env.VITE_MAP_URL ?? "http://127.0.0.1:5173/?embed=1";
 
 declare module "@tldraw/tlschema" {
   interface TLGlobalShapePropsMap {

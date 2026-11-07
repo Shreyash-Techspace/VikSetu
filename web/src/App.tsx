@@ -124,6 +124,7 @@ export default function App() {
   const [chat, setChat] = useState("");
   const [messages, setMessages] = useState<{ role: string; text: string }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mapError, setMapError] = useState<string | null>(null);
   const [layersOpen, setLayersOpen] = useState(true);
   const [layersDetached, setLayersDetached] = useState(false);
   const selectedPinRef = useRef<string | null>(null);
@@ -321,6 +322,11 @@ export default function App() {
         zoom: 9,
       });
       mapRef.current = map;
+
+      map.on("error", ({ error }) => {
+        console.error("MapLibre error:", error);
+        setMapError(error.message);
+      });
 
       map.on("load", async () => {
         map.addSource("district", {
@@ -546,7 +552,7 @@ export default function App() {
             }}
           />
           <div ref={mapWrapRef} className="map-wrap">
-            {loading && <div className="map-loading">Loading map…</div>}
+            {loading && <div className="map-loading">{mapError ? `Map failed to load: ${mapError}` : "Loading map…"}</div>}
             {!layersDetached && (
               <LayerIndexPanel
                 open={layersOpen}
